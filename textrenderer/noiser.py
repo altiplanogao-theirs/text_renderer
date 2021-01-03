@@ -41,11 +41,9 @@ class Noiser(object):
         """
         Gaussian-distributed additive noise.
         """
-        row, col = img.shape
-
         mean = 0
         stddev = np.sqrt(15)
-        gauss_noise = np.zeros((row, col))
+        gauss_noise = np.zeros(img.shape)
         cv2.randn(gauss_noise, mean, stddev)
         out = img + gauss_noise
 
@@ -55,10 +53,10 @@ class Noiser(object):
         """
         Apply zero-mean uniform noise
         """
-        row, col = img.shape
+        imshape = img.shape
         alpha = 0.05
-        gauss = np.random.uniform(0 - alpha, alpha, (row, col))
-        gauss = gauss.reshape(row, col)
+        gauss = np.random.uniform(0 - alpha, alpha, imshape)
+        gauss = gauss.reshape(*imshape)
         out = img + img * gauss
         return out
 
@@ -66,7 +64,6 @@ class Noiser(object):
         """
         Salt and pepper noise. Replaces random pixels with 0 or 255.
         """
-        row, col = img.shape
         s_vs_p = 0.5
         amount = np.random.uniform(0.004, 0.01)
         out = np.copy(img)
@@ -74,13 +71,13 @@ class Noiser(object):
         num_salt = np.ceil(amount * img.size * s_vs_p)
         coords = [np.random.randint(0, i - 1, int(num_salt))
                   for i in img.shape]
-        out[coords] = 255.
+        out[tuple(coords)] = 255.
 
         # Pepper mode
         num_pepper = np.ceil(amount * img.size * (1. - s_vs_p))
         coords = [np.random.randint(0, i - 1, int(num_pepper))
                   for i in img.shape]
-        out[coords] = 0
+        out[tuple(coords)] = 0
         return out
 
     def apply_poisson_noise(self, img):
